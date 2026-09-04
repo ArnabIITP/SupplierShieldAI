@@ -1,0 +1,134 @@
+{
+  "dataset": {
+    "version": "supplier-risk-dataset-v2-latent-variable",
+    "n_records": 30000,
+    "seed": 42,
+    "methodology": "latent-variable",
+    "class_priors": {
+      "safe": 0.52,
+      "elevated": 0.23,
+      "high": 0.17,
+      "critical": 0.08
+    },
+    "label_noise_rate": 0.04,
+    "confounder_rates": {
+      "safe_high_advance": 0.12,
+      "risky_low_advance": 0.08,
+      "risky_subtle": 0.06
+    }
+  },
+  "split": {
+    "method": "stratified 70/15/15",
+    "seed": 42,
+    "train": 21000,
+    "validation": 4500,
+    "test": 4500,
+    "train_pos_rate": 0.27004761904761904,
+    "val_pos_rate": 0.2702222222222222,
+    "test_pos_rate": 0.27
+  },
+  "logistic_regression_baseline": {
+    "best_C": 10.0,
+    "val_roc_auc": 0.8986300704372076
+  },
+  "xgboost": {
+    "selected_params": {
+      "n_estimators": 100,
+      "max_depth": 3,
+      "learning_rate": 0.2,
+      "scale_pos_weight": 2.703050608358314
+    },
+    "val_roc_auc": 0.9066420273334829
+  },
+  "model_selection": {
+    "selected": "XGBoost",
+    "objective": "validation ROC-AUC"
+  },
+  "isolation_forest": {
+    "contamination": 0.05,
+    "candidates": [
+      0.05,
+      0.1,
+      0.15,
+      0.2
+    ],
+    "selection_objective": "validation expected decision cost",
+    "normalization_method": "percentile-based from training data (80th and 95th pct of raw scores)",
+    "t_param": 0.5225428662081957,
+    "s_param": 0.06049847491591198,
+    "note": "contamination is an independent unsupervised hyperparameter, NOT derived from supervised positive-class prevalence"
+  },
+  "composite_score": {
+    "formula": "max(8,min(100,round(rule*0.45+ml_prob*100*0.45+anomaly*0.1)))",
+    "W_rule": 0.45,
+    "W_ml": 0.45,
+    "W_anomaly": 0.1,
+    "weight_candidates": [
+      {
+        "W_rule": 0.5,
+        "W_ml": 0.4,
+        "W_anomaly": 0.1
+      },
+      {
+        "W_rule": 0.55,
+        "W_ml": 0.35,
+        "W_anomaly": 0.1
+      },
+      {
+        "W_rule": 0.45,
+        "W_ml": 0.45,
+        "W_anomaly": 0.1
+      },
+      {
+        "W_rule": 0.6,
+        "W_ml": 0.3,
+        "W_anomaly": 0.1
+      }
+    ],
+    "selection_objective": "minimum validation expected decision cost",
+    "shap_score_bonus": "REMOVED - SHAP is explanation-only, not used in scoring"
+  },
+  "threshold": {
+    "composite_score_threshold": 25,
+    "selection_objective": "minimum validation expected decision cost",
+    "candidates": [
+      25,
+      30,
+      35,
+      40,
+      45,
+      50,
+      55,
+      60,
+      65,
+      70
+    ]
+  },
+  "calibration": {
+    "status": "applied",
+    "method": "isotonic regression on 60% of validation; evaluated on remaining 40%",
+    "ece_before": 0.08655093910586502,
+    "ece_after": 0.023240249811045423,
+    "improvement": 0.06331068929481959,
+    "threshold": 0.02,
+    "note": "held-out test set NOT used for calibration selection"
+  },
+  "cost_model": {
+    "disclaimer": "Synthetic benchmark cost-model assumptions. These numerical values are illustrative estimates created solely for this benchmark. They are not observed Indian SME industry statistics, not Razorpay data, and not empirical measures of actual fraud losses.",
+    "fp_review_cost_inr": 300.0,
+    "fp_delay_rate": 0.0008,
+    "fn_loss_rate": 0.35,
+    "fp_formula": "300+0.0008*amount",
+    "fn_formula": "0.35*amount"
+  },
+  "feature_names": [
+    "amount_log",
+    "advance_pct",
+    "quote_dev",
+    "dest_changed",
+    "doc_mismatch",
+    "missing_count",
+    "delivery_days"
+  ],
+  "trained_at": "2026-09-02T12:59:43.599363+00:00"
+}

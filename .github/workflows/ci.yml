@@ -1,0 +1,67 @@
+﻿name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  backend-lint-test:
+    name: Backend lint and unit tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install backend dependencies
+        run: pip install -r backend/requirements.txt
+        working-directory: .
+
+      - name: Lint (ruff)
+        run: ruff check backend/app
+        working-directory: .
+
+      - name: Unit tests (no Supabase required)
+        env:
+          # No SUPABASE_URL set deliberately - integration tests will be skipped
+          GEMINI_API_KEY: ""
+          RAZORPAY_KEY_ID: ""
+          RAZORPAY_KEY_SECRET: ""
+          RAZORPAY_WEBHOOK_SECRET: "ci_test_secret"
+        run: |
+          cd backend
+          python -m pytest tests/ -v \
+            -m "not integration" \
+            --ignore=tests/test_assessment_workflow.py \
+            --tb=short \
+            -q
+        working-directory: .
+
+  frontend-build:
+    name: Frontend production build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        run: npm ci
+        working-directory: frontend
+
+      - name: TypeScript build
+        run: npm run build
+        working-directory: frontend

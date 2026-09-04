@@ -1,0 +1,114 @@
+{
+  "dataset_version": "supplier-risk-dataset-v2-latent-variable",
+  "model_version": "supplier-risk-v2",
+  "methodology": "Latent-variable synthetic benchmark. Labels from hidden risk states, not directly from observable features. NOT real-world fraud performance.",
+  "features": [
+    "amount_log",
+    "advance_pct",
+    "quote_dev",
+    "dest_changed",
+    "doc_mismatch",
+    "missing_count",
+    "delivery_days"
+  ],
+  "split": {
+    "total": 30000,
+    "train": 21000,
+    "validation": 4500,
+    "test": 4500,
+    "method": "stratified 70/15/15",
+    "seed": 42
+  },
+  "model_selection": {
+    "logistic_regression_val_roc_auc": 0.8986300704372076,
+    "xgboost_val_roc_auc": 0.9066420273334829,
+    "selected": "XGBoost"
+  },
+  "composite_score_formula": {
+    "W_rule": 0.45,
+    "W_ml": 0.45,
+    "W_anomaly": 0.1,
+    "threshold": 25,
+    "shap_score_bonus": "removed"
+  },
+  "isolation_forest": {
+    "contamination": 0.05,
+    "t_param": 0.5225428662081957,
+    "s_param": 0.06049847491591198
+  },
+  "calibration": {
+    "status": "applied",
+    "ece_before": 0.08655093910586502,
+    "ece_after": 0.023240249811045423
+  },
+  "metrics": {
+    "precision": 0.73224043715847,
+    "recall": 0.7720164609053498,
+    "f1": 0.7516025641025641,
+    "roc_auc": 0.8933028919330288,
+    "pr_auc": 0.8245387084158062,
+    "false_positive_rate": 0.10441400304414003,
+    "false_negative_rate": 0.22798353909465022,
+    "confusion_matrix": [
+      [
+        2942,
+        343
+      ],
+      [
+        277,
+        938
+      ]
+    ]
+  },
+  "business_metrics": {
+    "cost_model_disclaimer": "Synthetic benchmark cost-model assumptions. These numerical values are illustrative estimates created solely for this benchmark. They are not observed Indian SME industry statistics, not Razorpay data, and not empirical measures of actual fraud losses.",
+    "suppliershield": {
+      "policy": "SupplierShield",
+      "fp_count": 343,
+      "fn_count": 277,
+      "fp_cost_inr": 161853.15,
+      "fn_cost_inr": 12997577.68,
+      "total_expected_decision_cost_inr": 13159430.83,
+      "review_rate_pct": 28.47,
+      "risky_exposure_correctly_flagged_inr": 187818657.09,
+      "risky_exposure_missed_inr": 37135936.22,
+      "legitimate_exposure_escalated_inr": 73691438.12,
+      "cost_model_disclaimer": "Synthetic benchmark cost-model assumptions. These numerical values are illustrative estimates created solely for this benchmark. They are not observed Indian SME industry statistics, not Razorpay data, and not empirical measures of actual fraud losses.",
+      "net_cost_vs_pass_all_inr": 65574676.83,
+      "net_cost_vs_flag_all_inr": -11911135.68
+    },
+    "baseline_pass_all": {
+      "policy": "Pass All (Baseline A)",
+      "fp_count": 0,
+      "fn_count": 1215,
+      "fp_cost_inr": 0,
+      "fn_cost_inr": 78734107.66,
+      "total_expected_decision_cost_inr": 78734107.66,
+      "review_rate_pct": 0.0,
+      "risky_exposure_correctly_flagged_inr": 0.0,
+      "risky_exposure_missed_inr": 224954593.32,
+      "legitimate_exposure_escalated_inr": 0.0,
+      "cost_model_disclaimer": "Synthetic benchmark cost-model assumptions. These numerical values are illustrative estimates created solely for this benchmark. They are not observed Indian SME industry statistics, not Razorpay data, and not empirical measures of actual fraud losses."
+    },
+    "baseline_flag_all": {
+      "policy": "Flag All (Baseline B)",
+      "fp_count": 3285,
+      "fn_count": 0,
+      "fp_cost_inr": 1248295.15,
+      "fn_cost_inr": 0,
+      "total_expected_decision_cost_inr": 1248295.15,
+      "review_rate_pct": 100.0,
+      "risky_exposure_correctly_flagged_inr": 224954593.32,
+      "risky_exposure_missed_inr": 0.0,
+      "legitimate_exposure_escalated_inr": 328493939.37,
+      "cost_model_disclaimer": "Synthetic benchmark cost-model assumptions. These numerical values are illustrative estimates created solely for this benchmark. They are not observed Indian SME industry statistics, not Razorpay data, and not empirical measures of actual fraud losses."
+    }
+  },
+  "leakage_baseline_reference": {
+    "description": "Old rule-derived label methodology (v1)",
+    "roc_auc": 0.9550594257935677,
+    "note": "Metrics inflated by label leakage"
+  },
+  "limitation": "Synthetic benchmark. Costs are synthetic assumptions, not industry data. Real-world performance unknown.",
+  "evaluated_at": "2026-09-02T13:00:14.464111+00:00"
+}
