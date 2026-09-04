@@ -88,7 +88,7 @@ function AuthGate({ children }: { children: ReactNode }) {
         <div className="auth-card">
           <div className="auth-brand-compact">
             <svg width="22" height="22" viewBox="0 0 32 32" fill="none">
-              <path d="M16 2L4 7v9c0 6.627 5.373 12 12 12s12-5.373 12-12V7L16 2z" fill="#1A3A6C"/>
+              <path d="M16 2L4 7v9c0 6.627 5.373 12 12 12s12-5.373 12-12V7L16 2z" fill="#173F3A"/>
               <path d="M11 16l3.5 3.5L21 13" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
             <span className="brand-name">SupplierShield</span>
@@ -105,7 +105,7 @@ function AuthGate({ children }: { children: ReactNode }) {
     return (
       <main className="loading">
         <svg width="36" height="36" viewBox="0 0 32 32" fill="none">
-          <path d="M16 2L4 7v9c0 6.627 5.373 12 12 12s12-5.373 12-12V7L16 2z" fill="#1A3A6C"/>
+          <path d="M16 2L4 7v9c0 6.627 5.373 12 12 12s12-5.373 12-12V7L16 2z" fill="#173F3A"/>
           <path d="M11 16l3.5 3.5L21 13" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
         <span>Checking secure workspace access...</span>
@@ -148,7 +148,7 @@ function AuthGate({ children }: { children: ReactNode }) {
       <div className="auth-brand-panel">
         <div className="auth-panel-brand">
           <svg width="36" height="36" viewBox="0 0 32 32" fill="none">
-            <path d="M16 2L4 7v9c0 6.627 5.373 12 12 12s12-5.373 12-12V7L16 2z" fill="#2E5FA3"/>
+            <path d="M16 2L4 7v9c0 6.627 5.373 12 12 12s12-5.373 12-12V7L16 2z" fill="#E7654D"/>
             <path d="M11 16l3.5 3.5L21 13" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
           <div className="brand-text">
@@ -159,17 +159,17 @@ function AuthGate({ children }: { children: ReactNode }) {
         <p className="auth-tagline">Know the supplier before you trust the payment.</p>
         <p className="auth-sub">Supplier procurement risk management for Indian SMEs.</p>
         <ul className="auth-trust-list">
-          <li><span className="auth-trust-check"><svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#2E5FA3" strokeWidth="2" strokeLinecap="round"/></svg></span>Enterprise workspace isolation</li>
-          <li><span className="auth-trust-check"><svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#2E5FA3" strokeWidth="2" strokeLinecap="round"/></svg></span>Explainable risk scoring</li>
-          <li><span className="auth-trust-check"><svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#2E5FA3" strokeWidth="2" strokeLinecap="round"/></svg></span>Human-authorized decisions</li>
-          <li><span className="auth-trust-check"><svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#2E5FA3" strokeWidth="2" strokeLinecap="round"/></svg></span>Append-only audit trail</li>
+          <li><span className="auth-trust-check"><svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#E7654D" strokeWidth="2" strokeLinecap="round"/></svg></span>Enterprise workspace isolation</li>
+          <li><span className="auth-trust-check"><svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#E7654D" strokeWidth="2" strokeLinecap="round"/></svg></span>Explainable risk scoring</li>
+          <li><span className="auth-trust-check"><svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#E7654D" strokeWidth="2" strokeLinecap="round"/></svg></span>Human-authorized decisions</li>
+          <li><span className="auth-trust-check"><svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#E7654D" strokeWidth="2" strokeLinecap="round"/></svg></span>Append-only audit trail</li>
         </ul>
       </div>
       <div className="auth-form-panel">
         <form className="auth-card" onSubmit={submit}>
           <div className="auth-brand-compact">
             <svg width="22" height="22" viewBox="0 0 32 32" fill="none">
-              <path d="M16 2L4 7v9c0 6.627 5.373 12 12 12s12-5.373 12-12V7L16 2z" fill="#1A3A6C"/>
+              <path d="M16 2L4 7v9c0 6.627 5.373 12 12 12s12-5.373 12-12V7L16 2z" fill="#173F3A"/>
               <path d="M11 16l3.5 3.5L21 13" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
             <span className="brand-name">SupplierShield</span>
@@ -263,7 +263,7 @@ function App() {
     return (
       <main className="loading">
         <svg width="36" height="36" viewBox="0 0 32 32" fill="none">
-          <path d="M16 2L4 7v9c0 6.627 5.373 12 12 12s12-5.373 12-12V7L16 2z" fill="#1A3A6C"/>
+          <path d="M16 2L4 7v9c0 6.627 5.373 12 12 12s12-5.373 12-12V7L16 2z" fill="#173F3A"/>
           <path d="M11 16l3.5 3.5L21 13" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
         <span>Loading your risk workspace...</span>
@@ -276,7 +276,7 @@ function App() {
     return (
       <main className="loading error-state">
         <svg width="36" height="36" viewBox="0 0 32 32" fill="none">
-          <path d="M16 2L4 7v9c0 6.627 5.373 12 12 12s12-5.373 12-12V7L16 2z" fill="#1A3A6C"/>
+          <path d="M16 2L4 7v9c0 6.627 5.373 12 12 12s12-5.373 12-12V7L16 2z" fill="#173F3A"/>
           <path d="M11 16l3.5 3.5L21 13" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
         <span>Unable to load workspace. {msg}</span>
