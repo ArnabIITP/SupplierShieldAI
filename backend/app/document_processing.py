@@ -7,7 +7,9 @@ import pytesseract
 from PIL import Image
 
 import shutil
-tesseract_path = shutil.which('tesseract') or r'C:\Users\arnab\scoop\apps\tesseract\current\tesseract.exe'
+# Use whatever tesseract binary is on PATH (works in the production Docker
+# image and in local dev). Falls back to the bare 'tesseract' command name.
+tesseract_path = shutil.which('tesseract') or 'tesseract'
 pytesseract.pytesseract.tesseract_cmd = tesseract_path
 
 

@@ -1,0 +1,85 @@
+# Render Blueprint — SupplierShield AI
+# Deploys both services to Render on every push to `main`:
+#   - Backend : FastAPI app as a Docker Web Service
+#   - Frontend: React/Vite build served as a Static Site
+#
+# Values marked `sync: false` are NOT stored here (secrets / deploy-time URLs);
+# set them once in the Render dashboard under each service's Environment tab:
+#   backend  -> SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, SUPABASE_DB_URL,
+#               CORS_ALLOWED_ORIGINS, GEMINI_API_KEY, GEMINI_MODEL,
+#               RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET, RAZORPAY_WEBHOOK_SECRET
+#   frontend -> VITE_API_URL (https://<backend>.onrender.com), VITE_SUPABASE_URL,
+#               VITE_SUPABASE_ANON_KEY
+
+services:
+  # ---------------------------------------------------------------- Backend
+  - type: web
+    name: suppliershield-backend
+    runtime: docker
+    repo: https://github.com/ArnabIITP/SupplierShieldAI
+    dockerContext: ./backend
+    dockerfilePath: ./backend/Dockerfile
+    healthCheckPath: /health/ready
+    plan: free
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: DEMO_MODE
+        value: "false"
+      - key: APP_NAME
+        value: SupplierShield
+      - key: SUPABASE_STORAGE_BUCKET
+        value: supplier-documents
+      - key: MAX_UPLOAD_SIZE_MB
+        value: "10"
+      - key: MAX_AI_REQUESTS_PER_MINUTE
+        value: "10"
+      - key: MAX_ASSESSMENTS_PER_MINUTE
+        value: "10"
+      - key: MODEL_VERSION
+        value: supplier-risk-v1
+      - key: RULESET_VERSION
+        value: rules-v1
+      - key: PROMPT_VERSION
+        value: prompt-v1
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SUPABASE_DB_URL
+        sync: false
+      - key: CORS_ALLOWED_ORIGINS
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        sync: false
+      - key: RAZORPAY_MODE
+        value: test
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
+      - key: RAZORPAY_WEBHOOK_SECRET
+        sync: false
+
+  # --------------------------------------------------------------- Frontend
+  - type: web
+    name: suppliershield-frontend
+    runtime: static
+    repo: https://github.com/ArnabIITP/SupplierShieldAI
+    rootDir: frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    plan: free
+    envVars:
+      - key: VITE_APP_NAME
+        value: SupplierShield
+      - key: VITE_DEMO_MODE
+        value: "true"
+      - key: VITE_API_URL
+        sync: false
+      - key: VITE_SUPABASE_URL
+        sync: false
+      - key: VITE_SUPABASE_ANON_KEY
+        sync: false
