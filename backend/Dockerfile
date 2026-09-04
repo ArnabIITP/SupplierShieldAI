@@ -1,7 +1,7 @@
 FROM python:3.12-slim
 
 # pytesseract needs the tesseract system binary (used for image OCR).
-RUN apt-get update && apt-get install -y --no-install-recommends tesseract-ocr \
+RUN apt-get update && apt-get install -y --no-install-recommends tesseract-ocr tesseract-ocr-eng \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
