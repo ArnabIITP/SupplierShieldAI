@@ -47,34 +47,46 @@ function AuthGate({ children }: { children: ReactNode }) {
       setMode('reset_password')
     }
 
-    supabase.auth.getSession().then(async ({ data }) => {
+    let mounted = true
+    supabase.auth.getSession().then(({ data }) => {
+      if (!mounted) return
       setSession(data.session)
-      if (data.session) await bootstrapWorkspace()
       setReady(true)
+      if (data.session) void bootstrapWorkspace(data.session)
+    }).catch(() => {
+      if (mounted) setReady(true)
     })
 
-    const { data: listener } = supabase.auth.onAuthStateChange(async (_event, next) => {
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, next) => {
       setSession(next)
-      if (next) await bootstrapWorkspace()
+      if (next) void bootstrapWorkspace(next)
     })
-    return () => listener.subscription.unsubscribe()
+
+    return () => {
+      mounted = false
+      listener.subscription.unsubscribe()
+    }
   }, [])
 
-  async function bootstrapWorkspace() {
+  async function bootstrapWorkspace(authSession: import('@supabase/supabase-js').Session) {
+    const controller = new AbortController()
+    const timeout = window.setTimeout(() => controller.abort(), 8000)
     try {
       const result = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/v1/onboarding/complete`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${(await supabase!.auth.getSession()).data.session?.access_token}`,
+          'Authorization': `Bearer ${authSession.access_token}`,
         },
         body: JSON.stringify({ name: 'My workspace' }),
+        signal: controller.signal,
       })
       if (result.ok) {
         const ws = await result.json()
         localStorage.setItem('supplierShield.workspaceId', ws.id)
       }
     } catch { /* silently continue - workspace may already exist */ }
+    finally { window.clearTimeout(timeout) }
   }
 
   // PRD Sec4.1 - redirect already-authenticated users away from login
@@ -227,11 +239,18 @@ function App() {
   const [page, setPage] = useState<Page>('dashboard')
   const [selectedAssessment, setSelectedAssessment] = useState<Assessment | null>(null)
   const [workspaceRole, setWorkspaceRole] = useState<string>('owner') // default optimistic
+  const [identityReady, setIdentityReady] = useState(false)
   const qc = useQueryClient()
 
   // Load user role from /me on mount
   useEffect(() => {
+    let mounted = true
+    const timeout = window.setTimeout(() => {
+      if (mounted) setIdentityReady(true)
+    }, 8000)
+
     api.me().then(me => {
+      if (!mounted) return
       const ws = me?.workspaces?.[0]
       if (ws) {
         setWorkspaceRole(ws.role)
@@ -240,7 +259,15 @@ function App() {
           qc.invalidateQueries()
         }
       }
-    }).catch(() => {})
+    }).catch(() => {}).finally(() => {
+      window.clearTimeout(timeout)
+      if (mounted) setIdentityReady(true)
+    })
+
+    return () => {
+      mounted = false
+      window.clearTimeout(timeout)
+    }
   }, [qc])
 
   const hasWorkspace = !!localStorage.getItem('supplierShield.workspaceId')
@@ -248,6 +275,18 @@ function App() {
   const suppliers = useQuery({ queryKey: ['suppliers', ''], queryFn: () => api.suppliers(), enabled: hasWorkspace })
   const assessments = useQuery({ queryKey: ['assessments'], queryFn: () => api.assessments(), enabled: hasWorkspace })
   const analytics = useQuery({ queryKey: ['analytics'], queryFn: api.analytics, enabled: hasWorkspace })
+
+  if (!identityReady) {
+    return (
+      <main className="loading">
+        <svg width="36" height="36" viewBox="0 0 32 32" fill="none">
+          <path d="M16 2L4 7v9c0 6.627 5.373 12 12 12s12-5.373 12-12V7L16 2z" fill="#173F3A"/>
+          <path d="M11 16l3.5 3.5L21 13" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+        <span>Preparing your risk workspace...</span>
+      </main>
+    )
+  }
 
   // PRD Sec5.5 - Sign out clears all state
   const handleSignOut = async () => {
@@ -257,6 +296,20 @@ function App() {
     localStorage.removeItem('supplierShield.workspaceId')
     qc.clear()
     window.location.reload()
+  }
+
+  if (!hasWorkspace) {
+    return (
+      <main className="loading error-state">
+        <svg width="36" height="36" viewBox="0 0 32 32" fill="none">
+          <path d="M16 2L4 7v9c0 6.627 5.373 12 12 12s12-5.373 12-12V7L16 2z" fill="#173F3A"/>
+          <path d="M11 16l3.5 3.5L21 13" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+        <span>Unable to prepare your workspace.</span>
+        <small>The workspace service did not respond. Sign out and try again.</small>
+        <button className="quiet" onClick={handleSignOut}>Sign out and retry</button>
+      </main>
+    )
   }
 
   if (dashboard.isLoading || suppliers.isLoading) {
