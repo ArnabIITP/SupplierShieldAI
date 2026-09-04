@@ -29,7 +29,13 @@ async def extract_document(data: bytes, mime_type: str) -> Extraction:
     if mime_type == "application/pdf":
         def read_pdf():
             with fitz.open(stream=data, filetype="pdf") as document:
-                return "\n".join(page.get_text() for page in document)[:50_000]
+                text_content = "\n".join(page.get_text() for page in document)
+                if len(text_content.strip()) < 20 and len(document) > 0:
+                    # PDF is likely a scanned image. Render the first page and run Tesseract OCR.
+                    pix = document[0].get_pixmap(dpi=200)
+                    img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
+                    text_content = pytesseract.image_to_string(img)
+                return text_content[:50_000]
         text = await asyncio.to_thread(read_pdf)
     else:
         def read_img():
@@ -67,7 +73,7 @@ Keys to extract:
 - "quote_deviation_percent": String (Percentage deviation from quote if mentioned)
 - "missing_information_count": String (Count of missing information if explicitly stated)
 
-If a field is completely missing, omit the key.
+If a field is completely missing or you are unsure, you MUST omit the key entirely. Do not guess or use the examples as values.
 
 Raw Text:
 {text}
