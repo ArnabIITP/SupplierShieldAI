@@ -36,7 +36,7 @@ async def generate_analysis(score: int, recommendation: str, factors: list[RiskF
     payload = {"contents": [{"parts": [{"text": json.dumps(prompt)}]}], "generationConfig": {"responseMimeType": "application/json", "temperature": 0.1}}
     url = f"https://generativelanguage.googleapis.com/v1beta/models/{settings.gemini_model}:generateContent?key={settings.gemini_api_key}"
     try:
-        async with httpx.AsyncClient(timeout=12) as client:
+        async with httpx.AsyncClient(timeout=30) as client:
             response = await client.post(url, json=payload)
         response.raise_for_status()
         content = response.json()["candidates"][0]["content"]["parts"][0]["text"]
@@ -45,5 +45,7 @@ async def generate_analysis(score: int, recommendation: str, factors: list[RiskF
         if any(factor.get("factor") not in valid_titles for factor in parsed["key_risk_factors"]):
             raise ValueError("AI output referenced unsupported evidence")
         return parsed, "available"
-    except (httpx.HTTPError, KeyError, IndexError, json.JSONDecodeError, ValidationError, ValueError):
+    except (httpx.HTTPError, KeyError, IndexError, json.JSONDecodeError, ValidationError, ValueError) as exc:
+        import logging
+        logging.getLogger(__name__).warning("Gemini analysis failed (%s: %s); using local fallback", type(exc).__name__, exc)
         return fallback, "unavailable - local evidence summary active"
