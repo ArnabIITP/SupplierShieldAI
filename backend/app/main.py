@@ -5,7 +5,6 @@ There are no in-memory fallbacks or demo code paths.
 """
 import hashlib
 import logging
-import re
 from collections import defaultdict
 from datetime import datetime, timezone
 from uuid import uuid4
@@ -1020,24 +1019,9 @@ async def upload_document(
     try:
         extraction = await extract_document(content, mime_type)
         status = "extracted"
-    except Exception as e:
-        logger.warning("OCR missing or failed: %s", e)
-        # Fallback for local testing environments without Tesseract installed
-        text = "Invoice Number: INV-0999\nAmount: Rs 150,000\nGSTIN: 22AAAAA0000A1Z5\nSupplier: Test Supplier Inc.\nCity: Mumbai"
-        fields: dict[str, str] = {}
-        patterns = {
-            "invoice_number": r"(...:invoice|quotation)\s*(...:no\....|number)...\s*[:#-]...\s*([A-Z0-9/-]{3,})", 
-            "gstin": r"\b\d{2}[A-Z]{5}\d{4}[A-Z]\d[A-Z\d][A-Z\d]\b", 
-            "amount": r"(...:INR|Rs\....)\s*([\d,]+(...:\.\d{1,2})...)",
-            "supplier": r"Supplier:\s*(.*)",
-            "city": r"City:\s*(.*)"
-        }
-        for label, pattern in patterns.items():
-            match = re.search(pattern, text, re.IGNORECASE)
-            if match:
-                fields[label] = match.group(1) if match.lastindex else match.group(0)
-        extraction = type("Extraction", (), {"text": text, "fields": fields})()
-        status = "extracted (simulated)"
+    except Exception as exc:
+        logger.warning("Document extraction failed: %s", exc)
+        raise HTTPException(status_code=422, detail="Could not read text from this document. Please upload a clearer PDF, PNG, or JPEG.") from exc
     document_id = str(uuid4())
     storage_reference = f"workspace/{workspace_id}/document/{document_id}"
     await store.upload(settings.supabase_storage_bucket, storage_reference, content, mime_type)
@@ -2009,20 +1993,6 @@ async def extract_only(
         extraction = await extract_document(content, mime_type)
         status = 'extracted'
     except Exception as exc:
-        logger.warning("Document extraction failed, using fallback: %s", exc)
-        text = "Invoice Number: INV-0999\nAmount: Rs 150,000\nGSTIN: 22AAAAA0000A1Z5\nSupplier: Test Supplier Inc.\nCity: Mumbai"
-        fields = {}
-        patterns = {
-            'invoice_number': r'(...:invoice|quotation)\s*(...:no\....|number)...\s*[:#-]...\s*([A-Z0-9/-]{3,})', 
-            'gstin': r'\b\d{2}[A-Z]{5}\d{4}[A-Z]\d[A-Z\d][A-Z\d]\b', 
-            'amount': r'(...:INR|Rs\....)\s*([\d,]+(...:\.\d{1,2})...)',
-            'supplier': r'Supplier:\s*(.*)',
-            'city': r'City:\s*(.*)'
-        }
-        for label, pattern in patterns.items():
-            match = re.search(pattern, text, re.IGNORECASE)
-            if match:
-                fields[label] = match.group(1) if match.lastindex else match.group(0)
-        extraction = type('Extraction', (), {'text': text, 'fields': fields})()
-        status = 'extracted (simulated)'
+        logger.warning("Document extraction failed: %s", exc)
+        raise HTTPException(status_code=422, detail="Could not read text from this document. Please upload a clearer PDF, PNG, or JPEG.") from exc
     return {'filename': filename, 'extracted_fields': extraction.fields, 'status': status}
